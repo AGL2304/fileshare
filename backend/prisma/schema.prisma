@@ -1,0 +1,142 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  GUEST
+  USER
+  PREMIUM
+  ADMIN
+}
+
+enum FileStatus {
+  PENDING
+  SCANNING
+  READY
+  QUARANTINED
+  DELETED
+}
+
+enum SharePermission {
+  VIEW
+  DOWNLOAD
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  name         String?
+  role         Role     @default(USER)
+  quotaBytes   BigInt   @default(5368709120) @map("quota_bytes") // 5GB
+  usedBytes    BigInt   @default(0) @map("used_bytes")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  files        File[]
+  folders      Folder[]
+  shares       Share[]
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model Folder {
+  id        String   @id @default(uuid())
+  name      String
+  userId    String   @map("user_id")
+  parentId  String?  @map("parent_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent    Folder?  @relation("FolderTree", fields: [parentId], references: [id])
+  children  Folder[] @relation("FolderTree")
+  files     File[]
+
+  @@index([userId, parentId])
+  @@map("folders")
+}
+
+model File {
+  id           String     @id @default(uuid())
+  name         String
+  originalName String     @map("original_name")
+  mimeType     String     @map("mime_type")
+  sizeBytes    BigInt     @map("size_bytes")
+  storageKey   String     @unique @map("storage_key")
+  checksumSha256 String?  @map("checksum_sha256")
+  status       FileStatus @default(PENDING)
+  isInfected   Boolean    @default(false) @map("is_infected")
+  thumbnailKey String?    @map("thumbnail_key")
+  userId       String     @map("user_id")
+  folderId     String?    @map("folder_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folder       Folder?    @relation(fields: [folderId], references: [id])
+  shares       Share[]
+  accessLogs   AccessLog[]
+
+  @@index([userId, status])
+  @@index([folderId])
+  @@index([createdAt(sort: Desc)])
+  @@map("files")
+}
+
+model Share {
+  id             String          @id @default(uuid())
+  token          String          @unique @default(uuid())
+  fileId         String          @map("file_id")
+  createdById    String          @map("created_by")
+  passwordHash   String?         @map("password_hash")
+  permission     SharePermission @default(DOWNLOAD)
+  expiresAt      DateTime?       @map("expires_at")
+  maxDownloads   Int?            @map("max_downloads")
+  downloadCount  Int             @default(0) @map("download_count")
+  isActive       Boolean         @default(true) @map("is_active")
+  createdAt      DateTime        @default(now()) @map("created_at")
+
+  file           File            @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  createdBy      User            @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  accessLogs     AccessLog[]
+
+  @@index([createdById])
+  @@index([fileId])
+  @@map("shares")
+}
+
+model AccessLog {
+  id          String   @id @default(uuid())
+  fileId      String   @map("file_id")
+  shareId     String?  @map("share_id")
+  ipAddress   String   @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  action      String   // "view" | "download"
+  accessedAt  DateTime @default(now()) @map("accessed_at")
+
+  file        File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  share       Share?   @relation(fields: [shareId], references: [id])
+
+  @@map("access_logs")
+}

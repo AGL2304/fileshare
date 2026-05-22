@@ -12,6 +12,7 @@ import { fileRoutes } from './routes/file.routes'
 import { shareRoutes } from './routes/share.routes'
 import { folderRoutes } from './routes/folder.routes'
 import { adminRoutes } from './routes/admin.routes'
+import { profileRoutes } from './routes/profile.routes'
 import { existsSync } from 'fs'
 import { mkdir } from 'fs/promises'
 import { AppError } from './utils/errors'
@@ -77,6 +78,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await fastify.register(fileRoutes, { prefix: '/api/v1/files' })
   await fastify.register(shareRoutes, { prefix: '/api/v1/shares' })
   await fastify.register(folderRoutes, { prefix: '/api/v1/folders' })
+  await fastify.register(profileRoutes, { prefix: '/api/v1/profile' })
   await fastify.register(adminRoutes, { prefix: '/api/v1/admin' })
 
   // ── Global error handler ─────────────────────────────────────────────

@@ -12,6 +12,7 @@ CREATE TABLE "users" (
   "email"         TEXT UNIQUE NOT NULL,
   "password_hash" TEXT NOT NULL,
   "name"          TEXT,
+  "avatar_key"    TEXT,
   "role"          "Role" NOT NULL DEFAULT 'USER',
   "quota_bytes"   BIGINT NOT NULL DEFAULT 5368709120,
   "used_bytes"    BIGINT NOT NULL DEFAULT 0,

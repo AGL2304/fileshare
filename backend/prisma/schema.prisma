@@ -33,6 +33,7 @@ model User {
   email        String   @unique
   passwordHash String   @map("password_hash")
   name         String?
+  avatarKey    String?  @map("avatar_key")
   role         Role     @default(USER)
   quotaBytes   BigInt   @default(5368709120) @map("quota_bytes") // 5GB
   usedBytes    BigInt   @default(0) @map("used_bytes")

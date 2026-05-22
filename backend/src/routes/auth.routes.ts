@@ -122,6 +122,7 @@ export async function authRoutes(fastify: FastifyInstance) {
         id: true,
         email: true,
         name: true,
+        avatarKey: true,
         role: true,
         quotaBytes: true,
         usedBytes: true,
@@ -141,6 +142,7 @@ export async function authRoutes(fastify: FastifyInstance) {
       success: true,
       data: {
         ...user,
+        avatarUrl: user.avatarKey ? `/api/v1/profile/avatar/${user.id}` : null,
         quotaBytes: user.quotaBytes.toString(),
         usedBytes: user.usedBytes.toString(),
       },

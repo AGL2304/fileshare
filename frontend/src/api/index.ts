@@ -126,6 +126,8 @@ export interface AuthUser {
   id: string
   email: string
   name: string | null
+  avatarKey?: string | null
+  avatarUrl?: string | null
   role: string
   quotaBytes: string
   usedBytes: string
@@ -247,6 +249,31 @@ export const foldersApi = {
   list: (parentId?: string) => api.get('/folders', { params: { parentId } }),
   create: (data: { name: string; parentId?: string }) => api.post('/folders', data),
   delete: (id: string) => api.delete(`/folders/${id}`),
+}
+
+// ─── Profile API ──────────────────────────────────────────────────────
+
+export const profileApi = {
+  updateEmail: (data: { newEmail: string; currentPassword: string }) =>
+    api.patch('/profile/email', data),
+
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    api.patch('/profile/password', data),
+
+  updateName: (data: { name: string | null }) =>
+    api.patch('/profile/name', data),
+
+  uploadAvatar: (file: File) => {
+    const form = new FormData()
+    form.append('file', file)
+    return api.post('/profile/avatar', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
+
+  deleteAvatar: () => api.delete('/profile/avatar'),
+
+  avatarUrl: (userId: string) => `${BASE_URL}/profile/avatar/${userId}`,
 }
 
 // ─── Admin API ────────────────────────────────────────────────────────

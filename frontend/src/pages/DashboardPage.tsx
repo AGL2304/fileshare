@@ -3,8 +3,9 @@ import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import {
   Home, Link as LinkIcon, Trash, LogOut,
-  Plus, Search, Cloud, Sun, Moon, MonitorSmartphone, Shield,
+  Plus, Search, Cloud, Sun, Moon, MonitorSmartphone, Shield, UserCircle,
 } from 'lucide-react'
+import { Avatar } from '../components/ui/Avatar'
 import { authApi } from '../api'
 import { useAuthStore } from '../store/auth.store'
 import { UploadDropzone } from '../components/files/UploadDropzone'
@@ -61,10 +62,8 @@ export default function DashboardPage() {
           <nav className="flex-1 p-4 space-y-1" aria-label="Navigation principale">
             <NavItem icon={Home} label="Mes fichiers" active />
             <NavItem icon={LinkIcon} label="Mes partages" onClick={() => navigate('/shares')} />
+            <NavItem icon={UserCircle} label="Mon profil" onClick={() => navigate('/profile')} />
             <NavItem icon={Trash} label="Corbeille" disabled />
-            {user?.role === 'ADMIN' && (
-              <NavItem icon={Shield} label="Administration" onClick={() => navigate('/admin')} />
-            )}
           </nav>
 
           {user && (
@@ -98,17 +97,30 @@ export default function DashboardPage() {
 
           <div className="p-4 border-t border-gray-100 dark:border-slate-700">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/40 rounded-full flex items-center justify-center text-blue-700 dark:text-blue-300 font-medium text-sm">
-                {user?.name?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? '?'}
-              </div>
-              <div className="flex-1 min-w-0">
+              {user && (
+                <button
+                  onClick={() => navigate('/profile')}
+                  className="rounded-full focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                  aria-label="Mon profil"
+                  type="button"
+                  title="Mon profil"
+                >
+                  <Avatar user={user} size="sm" />
+                </button>
+              )}
+              <button
+                onClick={() => navigate('/profile')}
+                className="flex-1 min-w-0 text-left hover:opacity-80 transition-opacity"
+                type="button"
+                aria-label="Voir mon profil"
+              >
                 <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">
                   {user?.name ?? user?.email}
                 </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500 capitalize">
                   {user?.role?.toLowerCase()}
                 </p>
-              </div>
+              </button>
               <button
                 onClick={cycle}
                 className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700"
@@ -133,22 +145,40 @@ export default function DashboardPage() {
         {/* Main */}
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto p-6 space-y-6">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
               <div>
                 <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Mes fichiers</h1>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Bonjour {user?.name ?? user?.email?.split('@')[0]}
                 </p>
               </div>
-              <button
-                onClick={() => setShowUpload((v) => !v)}
-                className="btn-primary"
-                type="button"
-                aria-expanded={showUpload}
-              >
-                <Plus className="w-4 h-4" aria-hidden="true" />
-                Uploader
-              </button>
+              <div className="flex items-center gap-2">
+                {user?.role === 'ADMIN' && (
+                  <button
+                    onClick={() => navigate('/admin')}
+                    className="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium
+                               bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300
+                               border border-purple-200 dark:border-purple-800/60
+                               hover:bg-purple-100 dark:hover:bg-purple-900/50
+                               transition-all duration-150 active:scale-95
+                               focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-purple-500"
+                    type="button"
+                    title="Accéder au panel d'administration"
+                  >
+                    <Shield className="w-4 h-4" aria-hidden="true" />
+                    Panel admin
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowUpload((v) => !v)}
+                  className="btn-primary"
+                  type="button"
+                  aria-expanded={showUpload}
+                >
+                  <Plus className="w-4 h-4" aria-hidden="true" />
+                  Uploader
+                </button>
+              </div>
             </div>
 
             {showUpload && (

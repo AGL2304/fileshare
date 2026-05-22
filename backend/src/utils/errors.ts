@@ -42,4 +42,16 @@ export const Errors = {
     new AppError('FORBIDDEN', 403, 'Permissions insuffisantes'),
   unauthorized: () =>
     new AppError('UNAUTHORIZED', 401, 'Authentification requise'),
+  wrongCurrentPassword: () =>
+    new AppError('WRONG_CURRENT_PASSWORD', 401, 'Mot de passe actuel incorrect'),
+  emailUnchanged: () =>
+    new AppError('EMAIL_UNCHANGED', 400, 'Le nouvel email est identique à l\'actuel'),
+  invalidAvatarType: () =>
+    new AppError('INVALID_AVATAR_TYPE', 415, 'Seuls les formats JPEG, PNG et WebP sont acceptés pour l\'avatar'),
+  avatarTooLarge: () =>
+    new AppError('AVATAR_TOO_LARGE', 413, 'L\'avatar ne doit pas dépasser 2 Mo'),
+  avatarNotFound: () =>
+    new AppError('AVATAR_NOT_FOUND', 404, 'Avatar introuvable'),
+  userNotFound: () =>
+    new AppError('USER_NOT_FOUND', 404, 'Utilisateur introuvable'),
 }

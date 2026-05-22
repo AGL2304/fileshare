@@ -4,6 +4,8 @@ export interface AuthUser {
   id: string
   email: string
   name: string | null
+  avatarKey?: string | null
+  avatarUrl?: string | null
   role: string
   quotaBytes: string
   usedBytes: string

@@ -115,6 +115,8 @@ export async function loginUser(input: LoginInput, fastify: FastifyInstance) {
       id: user.id,
       email: user.email,
       name: user.name,
+      avatarKey: user.avatarKey,
+      avatarUrl: user.avatarKey ? `/api/v1/profile/avatar/${user.id}` : null,
       role: user.role,
       quotaBytes: user.quotaBytes.toString(),
       usedBytes: user.usedBytes.toString(),

@@ -7,11 +7,13 @@ import { AdminRoute } from './components/AdminRoute'
 import { ErrorBoundary } from './components/ui/ErrorBoundary'
 import { ConfirmDialogProvider } from './components/ui/ConfirmDialog'
 import { useTheme } from './hooks/useTheme'
+import { useAuthStore } from './store/auth.store'
 import AuthPage from './pages/AuthPage'
 import DashboardPage from './pages/DashboardPage'
 import SharesPage from './pages/SharesPage'
 import SharePage from './pages/SharePage'
 import ProfilePage from './pages/ProfilePage'
+import LandingPage from './pages/LandingPage'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminUsers from './pages/admin/AdminUsers'
@@ -33,6 +35,15 @@ const queryClient = new QueryClient({
 function ThemeInit() {
   useTheme()
   return null
+}
+
+/**
+ * `/` is the landing page for visitors and the dashboard for authenticated users.
+ * We don't redirect — we just swap the component so the URL stays clean.
+ */
+function HomeOrDashboard() {
+  const { isAuthenticated } = useAuthStore()
+  return isAuthenticated ? <DashboardPage /> : <LandingPage />
 }
 
 export default function App() {
@@ -57,7 +68,8 @@ export default function App() {
               <Route path="/login" element={<AuthPage mode="login" />} />
               <Route path="/register" element={<AuthPage mode="register" />} />
               <Route path="/share/:token" element={<SharePage />} />
-              <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+              <Route path="/" element={<HomeOrDashboard />} />
+              <Route path="/app" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
               <Route path="/shares" element={<ProtectedRoute><SharesPage /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
 
